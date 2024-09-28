@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import models
 from .models import Student
 from .forms import StudentForm
@@ -7,12 +8,22 @@ from .forms import StudentForm
 
 def student_list(request):
     query = request.GET.get('q')
+    student_list = Student.objects.all()
     if query:
-        students = Student.objects.filter(
+        student_list = student_list.filter(
             models.Q(first_name__icontains=query) | models.Q(last_name__icontains=query)
         )
-    else:
-        students = Student.objects.all()
+
+    paginator = Paginator(student_list, 10)  # Show 10 students per page
+    page = request.GET.get('page')
+
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+
     context = {'students': students}
     return render(request, 'students/student_list.html', context)
 
