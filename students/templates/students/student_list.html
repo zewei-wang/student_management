@@ -23,6 +23,9 @@
                 <td>
                     <a href="{% url 'student_detail' student.pk %}">View</a> |
                     <a href="{% url 'student_edit' student.pk %}">Edit</a>
+                    {% if user.is_authenticated %}
+                        | <a href="{% url 'student_delete' student.pk %}" style="color:red;">Delete</a>
+                    {% endif %}
                 </td>
             </tr>
         {% empty %}
