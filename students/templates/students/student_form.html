@@ -1,26 +1,55 @@
 {% extends 'base.html' %}
+{% load form_tags %}
 
 {% block content %}
-    <h1>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Student</h1>
+<h1>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Student</h1>
 
-    {% if form.errors %}
-        <div class="alert alert-danger">
-            <ul>
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <li>{{ field.label }}: {{ error }}</li>
-                    {% endfor %}
+{% if form.errors %}
+    <div class="alert alert-danger">
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
                 {% endfor %}
-                {% for error in form.non_field_errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="id_first_name">First Name</label>
+            {{ form.first_name|add_class:"form-control" }}
         </div>
-    {% endif %}
-
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Save</button>
-    </form>
-{% endblock content %}
+        <div class="form-group col-md-6">
+            <label for="id_last_name">Last Name</label>
+            {{ form.last_name|add_class:"form-control" }}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="id_email">Email</label>
+        {{ form.email|add_class:"form-control" }}
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="id_date_of_birth">Date of Birth</label>
+            {{ form.date_of_birth|add_class:"form-control" }}
+        </div>
+        <div class="form-group col-md-6">
+            <label for="id_enrollment_date">Enrollment Date</label>
+            {{ form.enrollment_date|add_class:"form-control" }}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="id_grade">Grade</label>
+        {{ form.grade|add_class:"form-control" }}
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="{% url 'student_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

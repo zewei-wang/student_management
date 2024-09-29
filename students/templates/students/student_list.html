@@ -1,18 +1,20 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-    <h1>Student List</h1>
+<h1 class="mb-4">Student List</h1>
 
-    <form method="get" action=".">
-        <div class="form-group">
-            <input type="text" name="q" placeholder="Search by name..." class="form-control"
-                   value="{{ request.GET.q }}">
-        </div>
-        <button type="submit" class="btn btn-primary">Search</button>
-    </form>
+<!-- Search Form -->
+<form method="get" action="." class="form-inline mb-3">
+    <div class="form-group mr-2">
+        <input type="text" name="q" placeholder="Search by name..." class="form-control" value="{{ request.GET.q }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
 
-    <table class="table table-striped">
-        <thead>
+<!-- Student Table -->
+<table class="table table-bordered table-hover">
+    <thead class="thead-dark">
         <tr>
             <th>First Name</th>
             <th>Last Name</th>
@@ -20,8 +22,8 @@
             <th>Enrollment Date</th>
             <th>Actions</th>
         </tr>
-        </thead>
-        <tbody>
+    </thead>
+    <tbody>
         {% for student in students %}
             <tr>
                 <td>{{ student.first_name }}</td>
@@ -29,10 +31,16 @@
                 <td>{{ student.email }}</td>
                 <td>{{ student.enrollment_date }}</td>
                 <td>
-                    <a href="{% url 'student_detail' student.pk %}">View</a> |
-                    <a href="{% url 'student_edit' student.pk %}">Edit</a>
+                    <a href="{% url 'student_detail' student.pk %}" class="btn btn-sm btn-info">
+                        <i class="fas fa-eye"></i> View
+                    </a>
                     {% if user.is_authenticated %}
-                        | <a href="{% url 'student_delete' student.pk %}" style="color:red;">Delete</a>
+                        <a href="{% url 'student_edit' student.pk %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{% url 'student_delete' student.pk %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </a>
                     {% endif %}
                 </td>
             </tr>
@@ -41,51 +49,47 @@
                 <td colspan="5">No students found.</td>
             </tr>
         {% endfor %}
-        </tbody>
-    </table>
+    </tbody>
+</table>
 
-    <nav aria-label="Page navigation">
-        <ul class="pagination">
-            {% if students.has_previous %}
-                <li class="page-item">
-                    <a class="page-link"
-                       href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ students.previous_page_number }}"
-                       aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
+<!-- Pagination Controls -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if students.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&amp;{% endif %}page={{ students.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&laquo;</span>
+            </li>
+        {% endif %}
+
+        {% for num in students.paginator.page_range %}
+            {% if students.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
                 </li>
-            {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">&laquo;</span>
+            {% elif num > students.number|add:'-3' and num < students.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&amp;{% endif %}page={{ num }}">{{ num }}</a>
                 </li>
             {% endif %}
+        {% endfor %}
 
-            {% for num in students.paginator.page_range %}
-                {% if students.number == num %}
-                    <li class="page-item active">
-                        <span class="page-link">{{ num }}</span>
-                    </li>
-                {% else %}
-                    <li class="page-item">
-                        <a class="page-link"
-                           href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ num }}">{{ num }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-
-            {% if students.has_next %}
-                <li class="page-item">
-                    <a class="page-link"
-                       href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ students.next_page_number }}"
-                       aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            {% else %}
-                <li class="page-item disabled">
-                    <span class="page-link">&raquo;</span>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
-{% endblock content %}
+        {% if students.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&amp;{% endif %}page={{ students.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&raquo;</span>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}
